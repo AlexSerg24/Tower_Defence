@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Media;
 
 namespace Tower_Defence
 {
@@ -18,6 +19,8 @@ namespace Tower_Defence
 		public Bitmap Texture { get { return texture; } set { texture = value; } }
 		protected Bitmap shotTexture = null;
 		public Bitmap ShotTexture { get { return shotTexture; } set { shotTexture = value; } }
+		/*protected System.Windows.Media.MediaPlayer shotSound = null;
+		public System.Windows.Media.MediaPlayer ShotSound { get { return shotSound; } set { shotSound = value; } }*/
 		protected bool isShot = false;
 		public bool IsShot { get { return isShot; } set { isShot = value; } }
 		protected int animationTicks = 0;

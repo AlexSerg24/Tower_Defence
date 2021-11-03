@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Media;
 
 namespace Tower_Defence
 {
 	class Mage : Tower
 	{
-		public Mage(Point location, Bitmap texture, Bitmap shotTexture)
+		public Mage(Point location, Bitmap texture, Bitmap shotTexture, Uri shotSoundURI)
 		{
 			Name = "Mage";
 			Location = location;
 			Size = 29;
 			Texture = texture;
 			ShotTexture = shotTexture;
+			/*ShotSound = new System.Windows.Media.MediaPlayer();
+			ShotSound.Open(shotSoundURI);
+			ShotSound.Volume = 0.25;*/
 			Cost = 23;
 			Range = 150;
 			Damage = 4;
@@ -42,12 +46,14 @@ namespace Tower_Defence
 				double d = Math.Sqrt((foe.Shape.X + foe.Shape.Width / 2 - Location.X) * (foe.Shape.X + foe.Shape.Width / 2 - Location.X) + (foe.Shape.Y + foe.Shape.Height / 2 - Location.Y) * (foe.Shape.Y + foe.Shape.Height / 2 - Location.Y));
 				if (d < Range)
 				{
+					//ShotSound.Stop();
+					//ShotSound.Play();
 					isShot = true;
 					hasKilled = foe.ShotBy(this);
 					if (hasKilled)
 					{
 						foe.Die(ref scr, ref mny);
-						foeList.Remove(foe);
+						//foeList.Remove(foe);
 					}
 				}
 				i++;

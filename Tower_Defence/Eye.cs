@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Media;
 
 namespace Tower_Defence
 {
 	class Eye : Tower
 	{
-		public Eye(Point location, Bitmap texture, Bitmap shotTexture)
+		public Eye(Point location, Bitmap texture, Bitmap shotTexture, Uri shotSoundURI)
 		{
 			Name = "Eye";
 			Location = location;
 			Size = 30;
 			Texture = texture;
 			ShotTexture = shotTexture;
+			/*ShotSound = new System.Windows.Media.MediaPlayer();
+			ShotSound.Open(shotSoundURI);
+			ShotSound.Volume = 0.1875;*/
 			Cost = 45;
 			Range = 250;
 			Damage = 10;
@@ -63,12 +67,14 @@ namespace Tower_Defence
 
 			if (inRangeFoesList.Count > 0)
 			{
+				//ShotSound.Stop();
+				//ShotSound.Play();
 				isShot = true;
 				hasKilled = foeList[i].ShotBy(this);
 				if (hasKilled)
 				{
 					foeList[i].Die(ref scr, ref mny);
-					foeList.RemoveAt(i);
+					//foeList.RemoveAt(i);
 				}
 			}
 

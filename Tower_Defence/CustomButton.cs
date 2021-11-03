@@ -9,14 +9,15 @@ namespace Tower_Defence
     class CustomButton
     {
 		public string Name { get; set; }
-        public Rectangle Shape { get; set; }
+		private System.Windows.Media.MediaPlayer clickPlayer;
+		public Rectangle Shape { get; set; }
         public Bitmap Texture { get; set; }
         public bool Visible { get; set; }
 
         public CustomButton(string name, Rectangle shape, Bitmap texture = null, bool visible = false)
         {
 			Name = name;
-            Shape = shape;
+			Shape = shape;
             Texture = texture;
             Visible = visible;
         }

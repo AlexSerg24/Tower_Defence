@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Media;
 
 namespace Tower_Defence
 {
@@ -14,6 +15,8 @@ namespace Tower_Defence
 		public Rectangle Shape { get { return shape; } set { shape = value; } }
 		protected List<Bitmap> textureList;
 		public List<Bitmap> TextureList { get { return textureList; } set { textureList = value; } }
+		/*protected System.Windows.Media.MediaPlayer deathSound = null;
+		public System.Windows.Media.MediaPlayer DeathSound { get { return deathSound; } set { deathSound = value; } }*/
 		protected int pathNum = 1;
 		public int PathNumber { get { return pathNum; } set { if (value > 0) pathNum = value; } }
 		protected int animationTicks = 0;
@@ -33,10 +36,6 @@ namespace Tower_Defence
 		protected int reward = 0;
 		public int Reward { get { return reward; } set { if (value > 0) reward = value; } }
 
-		/*public abstract bool ShotBy(Tower twr, ref int scr, ref int mny);
-		public abstract void Die(ref int scr, ref int mny);
-		public abstract void Finish(ref int lives);*/
-
 		public bool ShotBy(Tower twr)
 		{
 			Health -= twr.Damage;
@@ -52,6 +51,8 @@ namespace Tower_Defence
 
 		public void Die(ref int scr, ref int mny)
 		{
+			//DeathSound.Stop();
+			//DeathSound.Play();
 			scr += Score;
 			mny += Reward;
 		}

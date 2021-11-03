@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Media;
 
 namespace Tower_Defence
 {
 	class Archer : Tower
 	{
-		public Archer(Point location, Bitmap texture, Bitmap shotTexture)
+		public Archer(Point location, Bitmap texture, Bitmap shotTexture, Uri shotSoundURI)
 		{
 			Name = "Archer";
 			Location = location;
 			Size = 25;
 			Texture = texture;
 			ShotTexture = shotTexture;
+			/*ShotSound = new System.Windows.Media.MediaPlayer();
+			ShotSound.Open(shotSoundURI);
+			ShotSound.Volume = 0.1875;*/
 			Cost = 8;
 			Range = 100;
 			Damage = 1;
@@ -42,12 +46,14 @@ namespace Tower_Defence
 				double d = Math.Sqrt((foe.Shape.X + foe.Shape.Width / 2 - Location.X) * (foe.Shape.X + foe.Shape.Width / 2 - Location.X) + (foe.Shape.Y + foe.Shape.Height / 2 - Location.Y) * (foe.Shape.Y + foe.Shape.Height / 2 - Location.Y));
 				if (d < Range)
 				{
+					//ShotSound.Stop();
+					//ShotSound.Play();
 					isShot = true;
 					hasKilled = foe.ShotBy(this);
 					if (hasKilled)
 					{
 						foe.Die(ref scr, ref mny);
-						foeList.Remove(foe);
+						//foeList.Remove(foe);
 					}
 				}
 				i++;

@@ -14,7 +14,6 @@ namespace Tower_Defence
 	public partial class Main_form : Form
 	{
 		Random rand = new Random();     //подношение Богу Рандома
-										//const double EPS = 0.000001;	//подношение Богу Сравнения чисел с плавающей точкой
 
 		List<Point> Path = new List<Point>();               //список точек, задающих путь
 		SolidBrush bru = new SolidBrush(Color.Lime);        //обыкновенная кисть для заливки
@@ -38,11 +37,11 @@ namespace Tower_Defence
 		int GlobalLives;            //количество жизней игрока
 		int GlobalGold;             //количество золота игрока
 		bool GlobalVictory;         //маркер победы
-		bool GlobalDeffeat;         //маркер поражения
+		bool GlobalDefeat;          //маркер поражения
 		bool GlobalPause;           //маркер паузы игры
 		bool ESTpaused;             //маркер паузы спавна противников
 		bool needHelp;              //маркер внутриигровой помощи (в меню паузы)
-		bool twrIsHeld;             //маркер удержания башни мышкой (при её установке (башни, не мышки))
+		bool twrIsHeld;             //маркер удержания башни мышкой при её установке (башни, не мышки)
 		bool wrongPlace;            //маркер недопустимого места установки башни
 		string twrForInfo;          //тип башни для отображения информации
 		string screenCondition;     //наименование текущего состояния экрана
@@ -71,7 +70,6 @@ namespace Tower_Defence
 		CustomButton NextLetter_2_btn;  //Следующая вторая буква
 		CustomButton NextLetter_3_btn;  //Следующая третья буква
 
-		//Bitmap MissingTexture_bmp;  //текстура Отсутствующей текстуры (была добавлена в ресурсы программы)
 		Bitmap MainBackground_bmp;  //текстура фона главного меню
 		Bitmap Background_bmp;      //основная текстура фона
 		Bitmap EnterYourName_bmp;   //текстура фона при вводе имени
@@ -79,7 +77,7 @@ namespace Tower_Defence
 		List<Bitmap> Help_bmps =    //текстуры фона Помощи
 			new List<Bitmap>();
 		Bitmap Victory_bmp;         //текстура спрайта победы
-		Bitmap Deffeat_bmp;         //текстура спрайта поражения
+		Bitmap Defeat_bmp;          //текстура спрайта поражения
 		Bitmap Lives_bmp;           //текстура иконки здоровья
 		Bitmap Gold_bmp;            //текстура иконки золота
 		Bitmap Range_bmp;           //текстура иконки радиуса атаки башни
@@ -122,88 +120,173 @@ namespace Tower_Defence
 		Point Crutch_pt;
 		Point Bicycle_pt;
 
+		List<Uri> BackgroundMusicURIs = 
+			new List<Uri>();
+		List<Uri> VictorySoundURIs =
+			new List<Uri>();
+		List<Uri> DefeatSoundURIs =
+			new List<Uri>();
+		Uri DefeatLaughterURI;
+		Uri CoinSoundURI;
+		Uri CreditsMusicURI;
+		Uri ButtonSoundURI;
+		Uri SilenceURI;
+		Uri StickmanDeathSoundURI;
+		Uri SoldierDeathSoundURI;
+		Uri GlitchDeathSoundURI;
+		Uri DragonDeathSoundURI;
+		Uri ArcherShotSoundURI;
+		Uri EyeShotSoundURI;
+		Uri MageShotSoundURI;
+		Uri MushroomShotSoundURI;
+
+		System.Windows.Media.MediaPlayer BackgroundPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer VictoryPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer DefeatPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer CoinPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer ButtonPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer StickmanDeathPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer SoldierDeathPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer GlitchDeathPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer DragonDeathPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer ArcherShotPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer MushroomShotPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer MageShotPlayer = new System.Windows.Media.MediaPlayer();
+		System.Windows.Media.MediaPlayer EyeShotPlayer = new System.Windows.Media.MediaPlayer();
+
 		public Main_form()
 		{
 			InitializeComponent();
 
-			//this.Text = "Age of Clash of War of Clans" + " (v1.22.20170905)";
+			this.Text = "Age of Clash of War of Clans" + " (v2.28.20191218)";
 
 			Records = new string[10, 2];
 			LoadRecords();
 			gameZone = Screen_PB.Height;
 
+			//---Подгрузка необходимых звуков---
+
+			CreditsMusicURI = GetURI("Sounds/Backgrounds/Crutch and Bicycle.wav");
+			BackgroundMusicURIs.Add(GetURI("Sounds/Backgrounds/Barn beat.wav"));
+			BackgroundMusicURIs.Add(GetURI("Sounds/Backgrounds/Cautious path.wav"));
+			BackgroundMusicURIs.Add(GetURI("Sounds/Backgrounds/Destination.wav"));
+			VictorySoundURIs.Add(GetURI("Sounds/Endgame/Victory_1.wav"));
+			VictorySoundURIs.Add(GetURI("Sounds/Endgame/Victory_2.wav"));
+			VictorySoundURIs.Add(GetURI("Sounds/Endgame/Victory_3.wav"));
+			VictorySoundURIs.Add(GetURI("Sounds/Endgame/Victory_4.wav"));
+			VictorySoundURIs.Add(GetURI("Sounds/Endgame/Victory_5.wav"));
+			DefeatSoundURIs.Add(GetURI("Sounds/Endgame/Defeat_1.wav"));
+			DefeatSoundURIs.Add(GetURI("Sounds/Endgame/Defeat_2.wav"));
+			DefeatSoundURIs.Add(GetURI("Sounds/Endgame/Defeat_3.wav"));
+			DefeatLaughterURI = GetURI("Sounds/Endgame/Defeat_laughter.wav");
+			CoinSoundURI = GetURI("Sounds/Endgame/Coin.wav");
+			ButtonSoundURI = GetURI("Sounds/UI/ButtonClick.wav");
+			SilenceURI = GetURI("Sounds/SoundOfSilence.wav");
+			StickmanDeathSoundURI = GetURI("Sounds/Enemies/StickmanDeath.wav");
+			SoldierDeathSoundURI = GetURI("Sounds/Enemies/SoldierDeath.wav");
+			GlitchDeathSoundURI = GetURI("Sounds/Enemies/GlitchDeath.wav");
+			DragonDeathSoundURI = GetURI("Sounds/Enemies/DragonDeath.wav");
+			ArcherShotSoundURI = GetURI("Sounds/Towers/ArcherShot.wav");
+			MushroomShotSoundURI = GetURI("Sounds/Towers/MushroomShot.wav");
+			MageShotSoundURI = GetURI("Sounds/Towers/MageShot.wav");
+			EyeShotSoundURI = GetURI("Sounds/Towers/EyeShot.wav");
+
+			BackgroundPlayer.Volume = 0.10;
+			VictoryPlayer.Volume = 0.50;
+			DefeatPlayer.Volume = 0.50;
+			CoinPlayer.Open(CoinSoundURI);
+			CoinPlayer.Volume = 0.50;
+			ButtonPlayer.Open(ButtonSoundURI);
+			ButtonPlayer.Volume = 0.125;
+			StickmanDeathPlayer.Open(StickmanDeathSoundURI);
+			StickmanDeathPlayer.Volume = 0.25;
+			SoldierDeathPlayer.Open(SoldierDeathSoundURI);
+			SoldierDeathPlayer.Volume = 0.25;
+			GlitchDeathPlayer.Open(GlitchDeathSoundURI);
+			GlitchDeathPlayer.Volume = 0.25;
+			DragonDeathPlayer.Open(DragonDeathSoundURI);
+			DragonDeathPlayer.Volume = 0.25;
+			ArcherShotPlayer.Open(ArcherShotSoundURI);
+			ArcherShotPlayer.Volume = 0.1875;
+			MushroomShotPlayer.Open(MushroomShotSoundURI);
+			MushroomShotPlayer.Volume = 0.25;
+			MageShotPlayer.Open(MageShotSoundURI);
+			MageShotPlayer.Volume = 0.25;
+			EyeShotPlayer.Open(EyeShotSoundURI);
+			EyeShotPlayer.Volume = 0.1875;
+			//TODO: убрать URI из конструкторов
+
 			//---Подгрузка необходимых текстур---
 
-			//MissingTexture_bmp = (File.Exists("Textures/MissingTexture.png")) ? new Bitmap("Textures/MissingTexture.png") :  Properties.Resources.MissingTexture;
-			MainBackground_bmp = (File.Exists("Textures/Backgrounds/MainBackground.png")) ? new Bitmap("Textures/Backgrounds/MainBackground.png") : Properties.Resources.MissingTexture;
-			Background_bmp = (File.Exists("Textures/Backgrounds/Background.png")) ? new Bitmap("Textures/Backgrounds/Background.png") : Properties.Resources.MissingTexture;
-			EnterYourName_bmp = (File.Exists("Textures/Backgrounds/EnterYourName.png")) ? new Bitmap("Textures/Backgrounds/EnterYourName.png") : Properties.Resources.MissingTexture;
-			Leaderboard_bmp = (File.Exists("Textures/Backgrounds/Leaderboard.png")) ? new Bitmap("Textures/Backgrounds/Leaderboard.png") : Properties.Resources.MissingTexture;
-			Help_bmps.Add((File.Exists("Textures/Backgrounds/Instructions_1.png")) ? new Bitmap("Textures/Backgrounds/Instructions_1.png") : Properties.Resources.MissingTexture);
-			Help_bmps.Add((File.Exists("Textures/Backgrounds/Instructions_2.png")) ? new Bitmap("Textures/Backgrounds/Instructions_2.png") : Properties.Resources.MissingTexture);
-			Help_bmps.Add((File.Exists("Textures/Backgrounds/Instructions_3.png")) ? new Bitmap("Textures/Backgrounds/Instructions_3.png") : Properties.Resources.MissingTexture);
-			Help_bmps.Add((File.Exists("Textures/Backgrounds/Instructions_4.png")) ? new Bitmap("Textures/Backgrounds/Instructions_4.png") : Properties.Resources.MissingTexture);
-			Victory_bmp = (File.Exists("Textures/GUI/End_Vict.png")) ? new Bitmap("Textures/GUI/End_Vict.png") : Properties.Resources.MissingTexture;
-			Deffeat_bmp = (File.Exists("Textures/GUI/End_Deff.png")) ? new Bitmap("Textures/GUI/End_Deff.png") : Properties.Resources.MissingTexture;
-			Lives_bmp = (File.Exists("Textures/GUI/Ico_Hrt.png")) ? new Bitmap("Textures/GUI/Ico_Hrt.png") : Properties.Resources.MissingTexture;
-			Gold_bmp = (File.Exists("Textures/GUI/Ico_Gld.png")) ? new Bitmap("Textures/GUI/Ico_Gld.png") : Properties.Resources.MissingTexture;
-			Range_bmp = (File.Exists("Textures/GUI/Ico_Rng.png")) ? new Bitmap("Textures/GUI/Ico_Rng.png") : Properties.Resources.MissingTexture;
-			Damage_bmp = (File.Exists("Textures/GUI/Ico_Dmg.png")) ? new Bitmap("Textures/GUI/Ico_Dmg.png") : Properties.Resources.MissingTexture;
-			Reload_bmp = (File.Exists("Textures/GUI/Ico_Rld.png")) ? new Bitmap("Textures/GUI/Ico_Rld.png") : Properties.Resources.MissingTexture;
-			Coin_bmp = (File.Exists("Textures/GUI/End_Coin.png")) ? new Bitmap("Textures/GUI/End_Coin.png") : Properties.Resources.MissingTexture;
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_1.png")) ? new Bitmap("Textures/Credits/Credits_1.png") : Properties.Resources.MissingTexture);
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_2.png")) ? new Bitmap("Textures/Credits/Credits_2.png") : Properties.Resources.MissingTexture);
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_3.png")) ? new Bitmap("Textures/Credits/Credits_3.png") : Properties.Resources.MissingTexture);
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_4.png")) ? new Bitmap("Textures/Credits/Credits_4.png") : Properties.Resources.MissingTexture);
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_5.png")) ? new Bitmap("Textures/Credits/Credits_5.png") : Properties.Resources.MissingTexture);
-			Credits_bmps.Add((File.Exists("Textures/Credits/Credits_6.png")) ? new Bitmap("Textures/Credits/Credits_6.png") : Properties.Resources.MissingTexture);
-			Logo_bmp = (File.Exists("Textures/Intro/Logo_KostylGames.png")) ? new Bitmap("Textures/Intro/Logo_KostylGames.png") : Properties.Resources.MissingTexture;
-			Crutch_bmp = (File.Exists("Textures/Intro/Crutch.png")) ? new Bitmap("Textures/Intro/Crutch.png") : Properties.Resources.MissingTexture;
-			Bicycle_bmp = (File.Exists("Textures/Intro/Bicycle.png")) ? new Bitmap("Textures/Intro/Bicycle.png") : Properties.Resources.MissingTexture;
+			MainBackground_bmp = GetTexture("Textures/Backgrounds/MainBackground.png");
+			Background_bmp = GetTexture("Textures/Backgrounds/Background.png");
+			EnterYourName_bmp = GetTexture("Textures/Backgrounds/EnterYourName.png");
+			Leaderboard_bmp = GetTexture("Textures/Backgrounds/Leaderboard.png");
+			Help_bmps.Add(GetTexture("Textures/Backgrounds/Instructions_1.png"));
+			Help_bmps.Add(GetTexture("Textures/Backgrounds/Instructions_2.png"));
+			Help_bmps.Add(GetTexture("Textures/Backgrounds/Instructions_3.png"));
+			Help_bmps.Add(GetTexture("Textures/Backgrounds/Instructions_4.png"));
+			Victory_bmp = GetTexture("Textures/GUI/End_Vict.png");
+			Defeat_bmp = GetTexture("Textures/GUI/End_Deff.png");
+			Lives_bmp = GetTexture("Textures/GUI/Ico_Hrt.png");
+			Gold_bmp = GetTexture("Textures/GUI/Ico_Gld.png");
+			Range_bmp = GetTexture("Textures/GUI/Ico_Rng.png");
+			Damage_bmp = GetTexture("Textures/GUI/Ico_Dmg.png");
+			Reload_bmp = GetTexture("Textures/GUI/Ico_Rld.png");
+			Coin_bmp = GetTexture("Textures/GUI/End_Coin.png");
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_1.png"));
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_2.png"));
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_3.png"));
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_4.png"));
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_5.png"));
+			Credits_bmps.Add(GetTexture("Textures/Credits/Credits_6.png"));
+			Logo_bmp = GetTexture("Textures/Intro/Logo_KostylGames.png");
+			Crutch_bmp = GetTexture("Textures/Intro/Crutch.png");
+			Bicycle_bmp = GetTexture("Textures/Intro/Bicycle.png");
 
-			Stickman_bmps.Add((File.Exists("Textures/Enemies/Stickman_1.png")) ? new Bitmap("Textures/Enemies/Stickman_1.png") : Properties.Resources.MissingTexture);
-			Stickman_bmps.Add((File.Exists("Textures/Enemies/Stickman_2.png")) ? new Bitmap("Textures/Enemies/Stickman_2.png") : Properties.Resources.MissingTexture);
-			Soldier_bmps.Add((File.Exists("Textures/Enemies/Soldier_1.png")) ? new Bitmap("Textures/Enemies/Soldier_1.png") : Properties.Resources.MissingTexture);
-			Soldier_bmps.Add((File.Exists("Textures/Enemies/Soldier_2.png")) ? new Bitmap("Textures/Enemies/Soldier_2.png") : Properties.Resources.MissingTexture);
-			Dragon_bmps.Add((File.Exists("Textures/Enemies/Dragon_1.png")) ? new Bitmap("Textures/Enemies/Dragon_1.png") : Properties.Resources.MissingTexture);
-			Dragon_bmps.Add((File.Exists("Textures/Enemies/Dragon_2.png")) ? new Bitmap("Textures/Enemies/Dragon_2.png") : Properties.Resources.MissingTexture);
-			HelpEnemyList.Add(new Stickman("of help", new Rectangle(30, 80, 64, 64), Stickman_bmps));
-			HelpEnemyList.Add(new Soldier("of help", new Rectangle(30, 220, 64, 64), Soldier_bmps));
-			HelpEnemyList.Add(new Stickman("of help" + "*", new Rectangle(45, 395, 40, 40), new List<Bitmap> { Stickman_bmps[0], Properties.Resources.MissingTexture }, 25, 0, 100.0, 50, 50));
-			HelpEnemyList.Add(new Dragon("of help", new Rectangle(12, 518, 100, 100), Dragon_bmps));
+			Stickman_bmps.Add(GetTexture("Textures/Enemies/Stickman_1.png"));
+			Stickman_bmps.Add(GetTexture("Textures/Enemies/Stickman_2.png"));
+			Soldier_bmps.Add(GetTexture("Textures/Enemies/Soldier_1.png"));
+			Soldier_bmps.Add(GetTexture("Textures/Enemies/Soldier_2.png"));
+			Dragon_bmps.Add(GetTexture("Textures/Enemies/Dragon_1.png"));
+			Dragon_bmps.Add(GetTexture("Textures/Enemies/Dragon_2.png"));
+			HelpEnemyList.Add(new Stickman("of help", new Rectangle(30, 80, 64, 64), Stickman_bmps, SilenceURI));
+			HelpEnemyList.Add(new Soldier("of help", new Rectangle(30, 220, 64, 64), Soldier_bmps, SilenceURI));
+			HelpEnemyList.Add(new Stickman("of help" + "*", new Rectangle(45, 395, 40, 40), new List<Bitmap> { Stickman_bmps[0], Properties.Resources.MissingTexture }, SilenceURI, 25, 0, 100.0, 50, 50));
+			HelpEnemyList.Add(new Dragon("of help", new Rectangle(12, 518, 100, 100), Dragon_bmps, SilenceURI));
 
-			Archer_bmp = (File.Exists("Textures/Towers/Twr_Arch.png")) ? new Bitmap("Textures/Towers/Twr_Arch.png") : Properties.Resources.MissingTexture;
-			ArcherShot_bmp = (File.Exists("Textures/Towers/Pew_Arch.png")) ? new Bitmap("Textures/Towers/Pew_Arch.png") : Properties.Resources.MissingTexture;
-			Mushroom_bmp = (File.Exists("Textures/Towers/Twr_Mush.png")) ? new Bitmap("Textures/Towers/Twr_Mush.png") : Properties.Resources.MissingTexture;
-			MushroomShot_bmp = (File.Exists("Textures/Towers/Pew_Mush.png")) ? new Bitmap("Textures/Towers/Pew_Mush.png") : Properties.Resources.MissingTexture;
-			Mage_bmp = (File.Exists("Textures/Towers/Twr_Mage.png")) ? new Bitmap("Textures/Towers/Twr_Mage.png") : Properties.Resources.MissingTexture;
-			MageShot_bmp = (File.Exists("Textures/Towers/Pew_Mage.png")) ? new Bitmap("Textures/Towers/Pew_Mage.png") : Properties.Resources.MissingTexture;
-			Eye_bmp = (File.Exists("Textures/Towers/Twr_Eye.png")) ? new Bitmap("Textures/Towers/Twr_Eye.png") : Properties.Resources.MissingTexture;
-			EyeShot_bmp = (File.Exists("Textures/Towers/Pew_Eye.png")) ? new Bitmap("Textures/Towers/Pew_Eye.png") : Properties.Resources.MissingTexture;
-			HelpTowerList.Add(new Archer(new Point(53, 150), Archer_bmp, ArcherShot_bmp));
-			HelpTowerList.Add(new Mushroom(new Point(55, 270), Mushroom_bmp, MushroomShot_bmp));
-			HelpTowerList.Add(new Mage(new Point(54, 400), Mage_bmp, MageShot_bmp));
-			HelpTowerList.Add(new Eye(new Point(56, 550), Eye_bmp, EyeShot_bmp));
+			Archer_bmp = GetTexture("Textures/Towers/Twr_Arch.png");
+			ArcherShot_bmp = GetTexture("Textures/Towers/Pew_Arch.png");
+			Mushroom_bmp = GetTexture("Textures/Towers/Twr_Mush.png");
+			MushroomShot_bmp = GetTexture("Textures/Towers/Pew_Mush.png");
+			Mage_bmp = GetTexture("Textures/Towers/Twr_Mage.png");
+			MageShot_bmp = GetTexture("Textures/Towers/Pew_Mage.png");
+			Eye_bmp = GetTexture("Textures/Towers/Twr_Eye.png");
+			EyeShot_bmp = GetTexture("Textures/Towers/Pew_Eye.png");
+			HelpTowerList.Add(new Archer(new Point(53, 150), Archer_bmp, ArcherShot_bmp, SilenceURI));
+			HelpTowerList.Add(new Mushroom(new Point(55, 270), Mushroom_bmp, MushroomShot_bmp, SilenceURI));
+			HelpTowerList.Add(new Mage(new Point(54, 400), Mage_bmp, MageShot_bmp, SilenceURI));
+			HelpTowerList.Add(new Eye(new Point(56, 550), Eye_bmp, EyeShot_bmp, SilenceURI));
 
-			NewGame_btn = new CustomButton("NewGame_btn", new Rectangle(465, 15, 150, 50), (File.Exists("Textures/GUI/Btn_NewG.png")) ? new Bitmap("Textures/GUI/Btn_NewG.png") : Properties.Resources.MissingTexture);
-			Leaderboard_btn = new CustomButton("Leaderboard_btn", new Rectangle(465, 80, 150, 50), (File.Exists("Textures/GUI/Btn_Lead.png")) ? new Bitmap("Textures/GUI/Btn_Lead.png") : Properties.Resources.MissingTexture);
-			Help_btn = new CustomButton("Help_btn", new Rectangle(465, 145, 150, 50), (File.Exists("Textures/GUI/Btn_Help.png")) ? new Bitmap("Textures/GUI/Btn_Help.png") : Properties.Resources.MissingTexture);
-			Credits_btn = new CustomButton("Credits_btn", new Rectangle(465, 210, 150, 50), (File.Exists("Textures/GUI/Btn_Cred.png")) ? new Bitmap("Textures/GUI/Btn_Cred.png") : Properties.Resources.MissingTexture);
-			Exit_btn = new CustomButton("Exit_btn", new Rectangle(465, 275, 150, 50), (File.Exists("Textures/GUI/Btn_Exit.png")) ? new Bitmap("Textures/GUI/Btn_Exit.png") : Properties.Resources.MissingTexture);
-			Back_btn = new CustomButton("Back_btn", new Rectangle(635, 600, 50, 25), (File.Exists("Textures/GUI/Btn_Back.png")) ? new Bitmap("Textures/GUI/Btn_Back.png") : Properties.Resources.MissingTexture);
-			Pause_btn = new CustomButton("Pause_btn", new Rectangle(635, 600, 50, 25), (File.Exists("Textures/GUI/Btn_Twix.png")) ? new Bitmap("Textures/GUI/Btn_Twix.png") : Properties.Resources.MissingTexture);
-			NextWave_btn = new CustomButton("NextWave_btn", new Rectangle(310, 503, 50, 50), (File.Exists("Textures/GUI/Btn_NxtW.png")) ? new Bitmap("Textures/GUI/Btn_NxtW.png") : Properties.Resources.MissingTexture);
-			Archer_btn = new CustomButton("Archer_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Archer_bmp.Width) / 2, 165, Archer_bmp.Width, Archer_bmp.Height), (File.Exists("Textures/Towers/Twr_Arch.png")) ? new Bitmap("Textures/Towers/Twr_Arch.png") : Properties.Resources.MissingTexture);                                              //Лень считать координаты? Забей. Программа сама посчитает.
-			Mushroom_btn = new CustomButton("Mushroom_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Mushroom_bmp.Width) / 2, 190 + Archer_bmp.Height, Mushroom_bmp.Width, Mushroom_bmp.Height), (File.Exists("Textures/Towers/Twr_Mush.png")) ? new Bitmap("Textures/Towers/Twr_Mush.png") : Properties.Resources.MissingTexture);
-			Mage_btn = new CustomButton("Mage_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Mage_bmp.Width) / 2, 194 + Archer_bmp.Height + Mushroom_bmp.Height, Mage_bmp.Width, Mage_bmp.Height), (File.Exists("Textures/Towers/Twr_Mage.png")) ? new Bitmap("Textures/Towers/Twr_Mage.png") : Properties.Resources.MissingTexture);
-			Eye_btn = new CustomButton("Eye_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Eye_bmp.Width) / 2, 216 + Archer_bmp.Height + Mushroom_bmp.Height + Mage_bmp.Height, Eye_bmp.Width, Eye_bmp.Height), (File.Exists("Textures/Towers/Twr_Eye.png")) ? new Bitmap("Textures/Towers/Twr_Eye.png") : Properties.Resources.MissingTexture);
-			Sell_btn = new CustomButton("Sell_btn", new Rectangle(321, 567, 25, 25), MakeOtherARGB((File.Exists("Textures/MissingTexture.png")) ? new Bitmap("Textures/GUI/Alphabet/_Dollar Sign.png") : Properties.Resources.MissingTexture, Color.Gold));
-			PrevLetter_1_btn = new CustomButton("PrevLetter_1_btn", new Rectangle(75, 60, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Less-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Less-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
-			PrevLetter_2_btn = new CustomButton("PrevLetter_2_btn", new Rectangle(265, 60, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Less-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Less-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
-			PrevLetter_3_btn = new CustomButton("PrevLetter_3_btn", new Rectangle(455, 60, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Less-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Less-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
-			NextLetter_1_btn = new CustomButton("NextLetter_1_btn", new Rectangle(75, 435, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Greater-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Greater-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
-			NextLetter_2_btn = new CustomButton("NextLetter_2_btn", new Rectangle(265, 435, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Greater-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Greater-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
-			NextLetter_3_btn = new CustomButton("NextLetter_3_btn", new Rectangle(455, 435, 100, 100), MakeOtherARGB((File.Exists("Textures/GUI/Alphabet/_Greater-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Greater-Than Sign.png") : Properties.Resources.MissingTexture, Color.LightSlateGray));
+			NewGame_btn = new CustomButton("NewGame_btn", new Rectangle(465, 15, 150, 50), GetTexture("Textures/GUI/Btn_NewG.png"));
+			Leaderboard_btn = new CustomButton("Leaderboard_btn", new Rectangle(465, 80, 150, 50), GetTexture("Textures/GUI/Btn_Lead.png"));
+			Help_btn = new CustomButton("Help_btn", new Rectangle(465, 145, 150, 50), GetTexture("Textures/GUI/Btn_Help.png"));
+			Credits_btn = new CustomButton("Credits_btn", new Rectangle(465, 210, 150, 50), GetTexture("Textures/GUI/Btn_Cred.png"));
+			Exit_btn = new CustomButton("Exit_btn", new Rectangle(465, 275, 150, 50), GetTexture("Textures/GUI/Btn_Exit.png"));
+			Back_btn = new CustomButton("Back_btn", new Rectangle(635, 600, 50, 25), GetTexture("Textures/GUI/Btn_Back.png"));
+			Pause_btn = new CustomButton("Pause_btn", new Rectangle(635, 600, 50, 25), GetTexture("Textures/GUI/Btn_Twix.png"));
+			NextWave_btn = new CustomButton("NextWave_btn", new Rectangle(310, 503, 50, 50), GetTexture("Textures/GUI/Btn_NxtW.png"));
+			Archer_btn = new CustomButton("Archer_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Archer_bmp.Width) / 2, 165, Archer_bmp.Width, Archer_bmp.Height), GetTexture("Textures/Towers/Twr_Arch.png"));                                              //Лень считать координаты? Забей. Программа сама посчитает.
+			Mushroom_btn = new CustomButton("Mushroom_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Mushroom_bmp.Width) / 2, 190 + Archer_bmp.Height, Mushroom_bmp.Width, Mushroom_bmp.Height), GetTexture("Textures/Towers/Twr_Mush.png"));
+			Mage_btn = new CustomButton("Mage_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Mage_bmp.Width) / 2, 194 + Archer_bmp.Height + Mushroom_bmp.Height, Mage_bmp.Width, Mage_bmp.Height), GetTexture("Textures/Towers/Twr_Mage.png"));
+			Eye_btn = new CustomButton("Eye_btn", new Rectangle(gameZone + (Screen_PB.Width - gameZone - Eye_bmp.Width) / 2, 216 + Archer_bmp.Height + Mushroom_bmp.Height + Mage_bmp.Height, Eye_bmp.Width, Eye_bmp.Height), GetTexture("Textures/Towers/Twr_Eye.png"));
+			Sell_btn = new CustomButton("Sell_btn", new Rectangle(321, 567, 25, 25), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Dollar Sign.png"), Color.Gold));
+			PrevLetter_1_btn = new CustomButton("PrevLetter_1_btn", new Rectangle(75, 60, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Less-Than Sign.png"), Color.LightSlateGray));
+			PrevLetter_2_btn = new CustomButton("PrevLetter_2_btn", new Rectangle(265, 60, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Less-Than Sign.png"), Color.LightSlateGray));
+			PrevLetter_3_btn = new CustomButton("PrevLetter_3_btn", new Rectangle(455, 60, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Less-Than Sign.png"), Color.LightSlateGray));
+			NextLetter_1_btn = new CustomButton("NextLetter_1_btn", new Rectangle(75, 435, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Greater-Than Sign.png"), Color.LightSlateGray));
+			NextLetter_2_btn = new CustomButton("NextLetter_2_btn", new Rectangle(265, 435, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Greater-Than Sign.png"), Color.LightSlateGray));
+			NextLetter_3_btn = new CustomButton("NextLetter_3_btn", new Rectangle(455, 435, 100, 100), MakeOtherARGB(GetTexture("Textures/GUI/Alphabet/_Greater-Than Sign.png"), Color.LightSlateGray));
 			PrevLetter_1_btn.Texture.RotateFlip(RotateFlipType.Rotate90FlipNone);
 			PrevLetter_2_btn.Texture.RotateFlip(RotateFlipType.Rotate90FlipNone);
 			PrevLetter_3_btn.Texture.RotateFlip(RotateFlipType.Rotate90FlipNone);
@@ -230,104 +313,114 @@ namespace Tower_Defence
 			BtnsList.Add(NextLetter_2_btn);
 			BtnsList.Add(NextLetter_3_btn);
 
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Space.png")) ? new Bitmap("Textures/GUI/Alphabet/_Space.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Exclamation Mark.png")) ? new Bitmap("Textures/GUI/Alphabet/_Exclamation Mark.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Quotation Mark.png")) ? new Bitmap("Textures/GUI/Alphabet/_Quotation Mark.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Number Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Number Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Dollar Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Dollar Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Percent Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Percent Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Ampersand.png")) ? new Bitmap("Textures/GUI/Alphabet/_Ampersand.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Apostrophe.png")) ? new Bitmap("Textures/GUI/Alphabet/_Apostrophe.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Left Parenthesis.png")) ? new Bitmap("Textures/GUI/Alphabet/_Left Parenthesis.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Right Parenthesis.png")) ? new Bitmap("Textures/GUI/Alphabet/_Right Parenthesis.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Asterisk.png")) ? new Bitmap("Textures/GUI/Alphabet/_Asterisk.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Plus Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Plus Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Comma.png")) ? new Bitmap("Textures/GUI/Alphabet/_Comma.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Hyphen-Minus.png")) ? new Bitmap("Textures/GUI/Alphabet/_Hyphen-Minus.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Full Stop.png")) ? new Bitmap("Textures/GUI/Alphabet/_Full Stop.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Solidus.png")) ? new Bitmap("Textures/GUI/Alphabet/_Solidus.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/0.png")) ? new Bitmap("Textures/GUI/Alphabet/0.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/1.png")) ? new Bitmap("Textures/GUI/Alphabet/1.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/2.png")) ? new Bitmap("Textures/GUI/Alphabet/2.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/3.png")) ? new Bitmap("Textures/GUI/Alphabet/3.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/4.png")) ? new Bitmap("Textures/GUI/Alphabet/4.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/5.png")) ? new Bitmap("Textures/GUI/Alphabet/5.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/6.png")) ? new Bitmap("Textures/GUI/Alphabet/6.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/7.png")) ? new Bitmap("Textures/GUI/Alphabet/7.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/8.png")) ? new Bitmap("Textures/GUI/Alphabet/8.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/9.png")) ? new Bitmap("Textures/GUI/Alphabet/9.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Colon.png")) ? new Bitmap("Textures/GUI/Alphabet/_Colon.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Semicolon.png")) ? new Bitmap("Textures/GUI/Alphabet/_Semicolon.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Less-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Less-Than Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Equals Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Equals Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Greater-Than Sign.png")) ? new Bitmap("Textures/GUI/Alphabet/_Greater-Than Sign.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Question Mark.png")) ? new Bitmap("Textures/GUI/Alphabet/_Question Mark.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Commercial At.png")) ? new Bitmap("Textures/GUI/Alphabet/_Commercial At.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital A.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital A.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital B.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital B.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital C.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital C.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital D.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital D.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital E.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital E.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital F.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital F.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital G.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital G.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital H.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital H.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital I.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital I.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital J.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital J.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital K.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital K.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital L.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital L.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital M.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital M.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital N.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital N.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital O.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital O.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital P.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital P.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital Q.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital Q.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital R.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital R.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital S.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital S.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital T.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital T.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital U.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital U.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital V.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital V.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital W.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital W.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital X.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital X.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital Y.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital Y.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Capital Z.png")) ? new Bitmap("Textures/GUI/Alphabet/Capital Z.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Left Square Bracket.png")) ? new Bitmap("Textures/GUI/Alphabet/_Left Square Bracket.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Reverse Solidus.png")) ? new Bitmap("Textures/GUI/Alphabet/_Reverse Solidus.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Right Square Bracket.png")) ? new Bitmap("Textures/GUI/Alphabet/_Right Square Bracket.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Circumflex Accent.png")) ? new Bitmap("Textures/GUI/Alphabet/_Circumflex Accent.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Low Line.png")) ? new Bitmap("Textures/GUI/Alphabet/_Low Line.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Grave Accent.png")) ? new Bitmap("Textures/GUI/Alphabet/_Grave Accent.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small A.png")) ? new Bitmap("Textures/GUI/Alphabet/Small A.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small B.png")) ? new Bitmap("Textures/GUI/Alphabet/Small B.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small C.png")) ? new Bitmap("Textures/GUI/Alphabet/Small C.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small D.png")) ? new Bitmap("Textures/GUI/Alphabet/Small D.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small E.png")) ? new Bitmap("Textures/GUI/Alphabet/Small E.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small F.png")) ? new Bitmap("Textures/GUI/Alphabet/Small F.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small G.png")) ? new Bitmap("Textures/GUI/Alphabet/Small G.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small H.png")) ? new Bitmap("Textures/GUI/Alphabet/Small H.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small I.png")) ? new Bitmap("Textures/GUI/Alphabet/Small I.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small J.png")) ? new Bitmap("Textures/GUI/Alphabet/Small J.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small K.png")) ? new Bitmap("Textures/GUI/Alphabet/Small K.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small L.png")) ? new Bitmap("Textures/GUI/Alphabet/Small L.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small M.png")) ? new Bitmap("Textures/GUI/Alphabet/Small M.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small N.png")) ? new Bitmap("Textures/GUI/Alphabet/Small N.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small O.png")) ? new Bitmap("Textures/GUI/Alphabet/Small O.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small P.png")) ? new Bitmap("Textures/GUI/Alphabet/Small P.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small Q.png")) ? new Bitmap("Textures/GUI/Alphabet/Small Q.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small R.png")) ? new Bitmap("Textures/GUI/Alphabet/Small R.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small S.png")) ? new Bitmap("Textures/GUI/Alphabet/Small S.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small T.png")) ? new Bitmap("Textures/GUI/Alphabet/Small T.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small U.png")) ? new Bitmap("Textures/GUI/Alphabet/Small U.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small V.png")) ? new Bitmap("Textures/GUI/Alphabet/Small V.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small W.png")) ? new Bitmap("Textures/GUI/Alphabet/Small W.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small X.png")) ? new Bitmap("Textures/GUI/Alphabet/Small X.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small Y.png")) ? new Bitmap("Textures/GUI/Alphabet/Small Y.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/Small Z.png")) ? new Bitmap("Textures/GUI/Alphabet/Small Z.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Left Curly Bracket.png")) ? new Bitmap("Textures/GUI/Alphabet/_Left Curly Bracket.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Vertical Line.png")) ? new Bitmap("Textures/GUI/Alphabet/_Vertical Line.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Right Curly Bracket.png")) ? new Bitmap("Textures/GUI/Alphabet/_Right Curly Bracket.png") : Properties.Resources.MissingTexture);
-			Alphabet.Add((File.Exists("Textures/GUI/Alphabet/_Tilde.png")) ? new Bitmap("Textures/GUI/Alphabet/_Tilde.png") : Properties.Resources.MissingTexture);
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Space.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Exclamation Mark.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Quotation Mark.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Number Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Dollar Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Percent Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Ampersand.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Apostrophe.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Left Parenthesis.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Right Parenthesis.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Asterisk.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Plus Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Comma.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Hyphen-Minus.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Full Stop.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Solidus.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/0.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/1.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/2.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/3.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/4.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/5.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/6.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/7.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/8.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/9.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Colon.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Semicolon.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Less-Than Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Equals Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Greater-Than Sign.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Question Mark.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Commercial At.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital A.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital B.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital C.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital D.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital E.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital F.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital G.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital H.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital I.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital J.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital K.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital L.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital M.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital N.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital O.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital P.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital Q.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital R.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital S.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital T.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital U.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital V.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital W.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital X.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital Y.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Capital Z.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Left Square Bracket.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Reverse Solidus.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Right Square Bracket.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Circumflex Accent.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Low Line.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Grave Accent.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small A.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small B.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small C.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small D.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small E.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small F.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small G.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small H.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small I.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small J.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small K.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small L.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small M.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small N.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small O.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small P.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small Q.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small R.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small S.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small T.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small U.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small V.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small W.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small X.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small Y.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/Small Z.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Left Curly Bracket.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Vertical Line.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Right Curly Bracket.png"));
+			Alphabet.Add(GetTexture("Textures/GUI/Alphabet/_Tilde.png"));
 			Alphabet.Add(Properties.Resources.MissingTexture);
 
 			SetScreenTo("Intro");
+		}
+
+		private Bitmap GetTexture(string path)
+		{
+			return File.Exists(path) ? new Bitmap(path) : Properties.Resources.MissingTexture;
+		}
+
+		private Uri GetURI(string path)
+		{
+			return File.Exists(path) ? new Uri(new Uri(Application.ExecutablePath), path) : new Uri("C:/Windows/Media/tada.wav");
 		}
 
 		private void SaveRecords() //сохраняет рекорды в файл
@@ -389,6 +482,19 @@ namespace Tower_Defence
 					Credits_timer.Stop();
 					Intro_timer.Start();
 					Help_timer.Stop();
+					BackgroundPlayer.Stop();
+					VictoryPlayer.Stop();
+					DefeatPlayer.Stop();
+					CoinPlayer.Stop();
+					ButtonPlayer.Stop();
+					StickmanDeathPlayer.Stop();
+					SoldierDeathPlayer.Stop();
+					GlitchDeathPlayer.Stop();
+					DragonDeathPlayer.Stop();
+					ArcherShotPlayer.Stop();
+					MushroomShotPlayer.Stop();
+					MageShotPlayer.Stop();
+					EyeShotPlayer.Stop();
 					break;
 				case "Main menu":
 					Leaderboard_btn.ChangePos(465, 80);
@@ -413,13 +519,28 @@ namespace Tower_Defence
 					NextLetter_1_btn.Visible = false;
 					NextLetter_2_btn.Visible = false;
 					NextLetter_3_btn.Visible = false;
-					GlobalDeffeat = false;
+					GlobalDefeat = false;
 					Screen_PB.BackgroundImage = MainBackground_bmp;
 					EnemySpawn_timer.Stop();
 					GameAnimation_timer.Stop();
 					Credits_timer.Stop();
 					Intro_timer.Stop();
 					Help_timer.Stop();
+					BackgroundPlayer.Stop();
+					VictoryPlayer.Stop();
+					DefeatPlayer.Stop();
+					CoinPlayer.Stop();
+					ButtonPlayer.Stop();
+					StickmanDeathPlayer.Stop();
+					SoldierDeathPlayer.Stop();
+					GlitchDeathPlayer.Stop();
+					DragonDeathPlayer.Stop();
+					ArcherShotPlayer.Stop();
+					MushroomShotPlayer.Stop();
+					MageShotPlayer.Stop();
+					EyeShotPlayer.Stop();
+					BackgroundPlayer.Open(BackgroundMusicURIs[0]);
+					BackgroundPlayer.Play();
 					break;
 				case "Enter your name":
 					Leaderboard_btn.ChangePos(240, 550);
@@ -539,6 +660,21 @@ namespace Tower_Defence
 					Credits_timer.Start();
 					Intro_timer.Stop();
 					Help_timer.Stop();
+					BackgroundPlayer.Stop();
+					VictoryPlayer.Stop();
+					DefeatPlayer.Stop();
+					CoinPlayer.Stop();
+					ButtonPlayer.Stop();
+					StickmanDeathPlayer.Stop();
+					SoldierDeathPlayer.Stop();
+					GlitchDeathPlayer.Stop();
+					DragonDeathPlayer.Stop();
+					ArcherShotPlayer.Stop();
+					MushroomShotPlayer.Stop();
+					MageShotPlayer.Stop();
+					EyeShotPlayer.Stop();
+					BackgroundPlayer.Open(CreditsMusicURI);
+					BackgroundPlayer.Play();
 					break;
 				case "Game":
 					Help_btn.ChangePos(240, 252);
@@ -570,12 +706,12 @@ namespace Tower_Defence
 					helpPage = 1;
 					secsRemaining = 10;
 					coinTime = 0;
-					GlobalWave = -1;
+					GlobalWave = 7;//-1; ***
 					GlobalScore = 0;
 					GlobalLives = 10;
-					GlobalGold = 30;
+					GlobalGold = 1000;//30; ***
 					GlobalVictory = false;
-					GlobalDeffeat = false;
+					GlobalDefeat = false;
 					GlobalPause = false;
 					ESTpaused = false;
 					needHelp = false;
@@ -596,6 +732,10 @@ namespace Tower_Defence
 					Credits_timer.Stop();
 					Intro_timer.Stop();
 					Help_timer.Stop();
+					BackgroundPlayer.Open(BackgroundMusicURIs[rand.Next(1, BackgroundMusicURIs.Count)]);
+					BackgroundPlayer.Play();
+					VictoryPlayer.Open(VictorySoundURIs[rand.Next(0, VictorySoundURIs.Count)]);
+					DefeatPlayer.Open(DefeatSoundURIs[rand.Next(0, DefeatSoundURIs.Count)]);
 					break;
 				default:
 					Screen_PB.BackgroundImage = Properties.Resources.MissingTexture;
@@ -1071,7 +1211,7 @@ namespace Tower_Defence
 					Hbru = new System.Drawing.Drawing2D.HatchBrush(System.Drawing.Drawing2D.HatchStyle.HorizontalBrick, Color.DarkSlateGray, Color.DarkGray);
 					g.FillRectangle(Hbru, gameZone, 0, Screen_PB.Width - gameZone, gameZone);
 
-					if (GlobalPause && !GlobalDeffeat && !GlobalVictory)
+					if (GlobalPause && !GlobalDefeat && !GlobalVictory)
 					{
 						g.FillRectangle(Hbru, (gameZone - 200) / 2, (gameZone - 175) / 2, 200, 175);
 						if (needHelp)
@@ -1098,7 +1238,6 @@ namespace Tower_Defence
 						if (btn.Visible)
 							g.DrawImage(btn.Texture, btn.Shape);
 
-					//g.DrawImage(, gameZone, 10, 15, 15);
 					if (GlobalScore / 1000 > 0)
 						DrawText(g, Convert.ToString(GlobalScore), Color.White, gameZone + 15, 10, 45, 15);
 					else
@@ -1126,11 +1265,11 @@ namespace Tower_Defence
 						DrawInfo(g, twrForInfo);
 					}
 
-					if (GlobalDeffeat)
+					if (GlobalDefeat)
 					{
 						bru.Color = Color.FromArgb(63, Color.Black);
 						g.FillRectangle(bru, 0, 0, gameZone, gameZone);
-						g.DrawImage(Deffeat_bmp, new Point((gameZone - Deffeat_bmp.Width) / 2, (gameZone - Deffeat_bmp.Height) / 2));
+						g.DrawImage(Defeat_bmp, new Point((gameZone - Defeat_bmp.Width) / 2, (gameZone - Defeat_bmp.Height) / 2));
 						//if (secsRemaining > -1)
 						DrawText(g, Convert.ToString(secsRemaining), Color.FromArgb(255 - secsRemaining * 25, secsRemaining * 25, 0), (gameZone - Convert.ToString(secsRemaining).Length * 64) / 2, 495, 64);
 						g.DrawImage(Coin_bmp, (gameZone - 50) / 2, 400 - 175 * (float)(Math.Abs(Math.Sin(coinTime * GameAnimation_timer.Interval / 1000.0 * Math.PI / 2))), 60, 60);
@@ -1384,14 +1523,20 @@ namespace Tower_Defence
 					case "Main menu":
 						if (NewGame_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							SetScreenTo("Game");
 						}
 						else if (Leaderboard_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							SetScreenTo("Leaderboard");
 						}
 						else if (Help_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							PrevLetter_1_btn.Texture = MakeOtherARGB(PrevLetter_1_btn.Texture, Color.Black);
 							PrevLetter_1_btn.Texture.RotateFlip(RotateFlipType.Rotate270FlipNone);
 							NextLetter_1_btn.Texture = MakeOtherARGB(NextLetter_1_btn.Texture, Color.Black);
@@ -1400,16 +1545,22 @@ namespace Tower_Defence
 						}
 						else if (Credits_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							SetScreenTo("Credits");
 						}
 						else if (Exit_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							this.Close();
 						}
 						break;
 					case "Enter your name":
 						if (Leaderboard_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							int tpResult = 0;
 							int.TryParse(Records[0, 1], out tpResult);
 							int i = 0;
@@ -1433,6 +1584,8 @@ namespace Tower_Defence
 						}
 						else if (PrevLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[0];
 							if (ch == ' ')
 								ch = '~';
@@ -1443,6 +1596,8 @@ namespace Tower_Defence
 						}
 						else if (PrevLetter_2_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[1];
 							if (ch == ' ')
 								ch = '~';
@@ -1453,6 +1608,8 @@ namespace Tower_Defence
 						}
 						else if (PrevLetter_3_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[2];
 							if (ch == ' ')
 								ch = '~';
@@ -1463,6 +1620,8 @@ namespace Tower_Defence
 						}
 						else if (NextLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[0];
 							if (ch == '~')
 								ch = ' ';
@@ -1473,6 +1632,8 @@ namespace Tower_Defence
 						}
 						else if (NextLetter_2_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[1];
 							if (ch == '~')
 								ch = ' ';
@@ -1483,6 +1644,8 @@ namespace Tower_Defence
 						}
 						else if (NextLetter_3_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							char ch = yourName[2];
 							if (ch == '~')
 								ch = ' ';
@@ -1495,12 +1658,16 @@ namespace Tower_Defence
 					case "Leaderboard":
 						if (Back_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							SetScreenTo("Main menu");
 						}
 						break;
 					case "Help":
 						if (PrevLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							helpPage--;
 							NextLetter_1_btn.Visible = true;
 							if (helpPage == 1)
@@ -1509,6 +1676,8 @@ namespace Tower_Defence
 						}
 						else if (NextLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							helpPage++;
 							PrevLetter_1_btn.Visible = true;
 							if (helpPage == Help_bmps.Count)
@@ -1517,6 +1686,8 @@ namespace Tower_Defence
 						}
 						else if (Back_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							PrevLetter_1_btn.Texture = new Bitmap(PrevLetter_2_btn.Texture);
 							NextLetter_1_btn.Texture = new Bitmap(NextLetter_2_btn.Texture);
 							SetScreenTo("Main menu");
@@ -1525,14 +1696,16 @@ namespace Tower_Defence
 					case "Credits":
 						if (Back_btn.IsClicked(e))
 						{
-							if (GlobalDeffeat)
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
+							if (GlobalDefeat)
 								SetScreenTo("Leaderboard");
 							else
 								SetScreenTo("Main menu");
 						}
 						break;
 					case "Game":
-						if (GlobalDeffeat)
+						if (GlobalDefeat)
 						{
 							SetScreenTo("Credits");
 						}
@@ -1549,6 +1722,8 @@ namespace Tower_Defence
 						}
 						else if (Help_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							needHelp = true;
 							Help_btn.Visible = false;
 							Exit_btn.Visible = false;
@@ -1566,6 +1741,8 @@ namespace Tower_Defence
 						}
 						else if (PrevLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							helpPage--;
 							NextLetter_1_btn.Visible = true;
 							if (helpPage == 1)
@@ -1574,6 +1751,8 @@ namespace Tower_Defence
 						}
 						else if (NextLetter_1_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							helpPage++;
 							PrevLetter_1_btn.Visible = true;
 							if (helpPage == Help_bmps.Count)
@@ -1582,10 +1761,14 @@ namespace Tower_Defence
 						}
 						else if (Exit_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							SetScreenTo("Main menu");
 						}
 						else if (Back_btn.IsClicked(e))
 						{
+							ButtonPlayer.Stop();
+							ButtonPlayer.Play();
 							if (needHelp)
 							{
 								needHelp = false;
@@ -1615,10 +1798,12 @@ namespace Tower_Defence
 								Screen_PB.Refresh();
 							}
 						}
-						else if (!GlobalPause && !GlobalDeffeat && !GlobalVictory)
+						else if (!GlobalPause && !GlobalDefeat && !GlobalVictory)
 						{
 							if (Pause_btn.IsClicked(e))
 							{
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
 								GlobalPause = true;
 								if (EnemySpawn_timer.Enabled)
 								{
@@ -1634,22 +1819,30 @@ namespace Tower_Defence
 							}
 							else if (Archer_btn.IsClicked(e))
 							{
-								hTwr = new Archer(e.Location, Archer_bmp, ArcherShot_bmp);
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
+								hTwr = new Archer(e.Location, Archer_bmp, ArcherShot_bmp, ArcherShotSoundURI);
 								twrIsHeld = true;
 							}
 							else if (Mushroom_btn.IsClicked(e))
 							{
-								hTwr = new Mushroom(e.Location, Mushroom_bmp, MushroomShot_bmp);
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
+								hTwr = new Mushroom(e.Location, Mushroom_bmp, MushroomShot_bmp, MushroomShotSoundURI);
 								twrIsHeld = true;
 							}
 							else if (Mage_btn.IsClicked(e))
 							{
-								hTwr = new Mage(e.Location, Mage_bmp, MageShot_bmp);
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
+								hTwr = new Mage(e.Location, Mage_bmp, MageShot_bmp, MageShotSoundURI);
 								twrIsHeld = true;
 							}
 							else if (Eye_btn.IsClicked(e))
 							{
-								hTwr = new Eye(e.Location, Eye_bmp, EyeShot_bmp);
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
+								hTwr = new Eye(e.Location, Eye_bmp, EyeShot_bmp, EyeShotSoundURI);
 								twrIsHeld = true;
 							}
 							else if (twrIsHeld && !wrongPlace)
@@ -1670,6 +1863,8 @@ namespace Tower_Defence
 							}
 							else if (NextWave_btn.IsClicked(e))
 							{
+								ButtonPlayer.Stop();
+								ButtonPlayer.Play();
 								NextWave_btn.Visible = false;
 								GlobalWave++;
 								if (GlobalWave == WavesList.Count)
@@ -1693,12 +1888,14 @@ namespace Tower_Defence
 												break;
 										}
 									}
-									WavesList.Add(new Wave("Волна №" + Convert.ToString(GlobalWave + 1), new List<Enemy> { new Dragon("1", new Rectangle(Path[0].X - 50 / 2, Path[0].Y - 50 / 2, 50, 50), Dragon_bmps, dragonHealth) }));
+									WavesList.Add(new Wave("Волна №" + Convert.ToString(GlobalWave + 1), new List<Enemy> { new Dragon("1", new Rectangle(Path[0].X - 50 / 2, Path[0].Y - 50 / 2, 50, 50), Dragon_bmps, DragonDeathSoundURI, dragonHealth) }));
 								}
 								EnemySpawn_timer.Start();
 							}
 							else if (Sell_btn.IsClicked(e))
 							{
+								GlitchDeathPlayer.Stop();
+								GlitchDeathPlayer.Play();
 								GlobalGold += CurrentTowerList[selTwrID].Cost / 2;
 								CurrentTowerList.RemoveAt(selTwrID);
 								selTwrID = -1;
@@ -1869,28 +2066,27 @@ namespace Tower_Defence
 					if ((enemyType >= 1) && (enemyType <= border))
 					{
 						size = 32;
-						foeList.Add(new Stickman(Convert.ToString(j + 1), new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), Stickman_bmps, 5 + i));
+						foeList.Add(new Stickman(Convert.ToString(j + 1), new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), Stickman_bmps, StickmanDeathSoundURI, 5 + i));
 					}
 					else if ((enemyType > border) && (enemyType <= 100))
 					{
 						size = 32;
-						foeList.Add(new Soldier(Convert.ToString(j + 1), new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), Soldier_bmps, 10 + 2 * i));
+						foeList.Add(new Soldier(Convert.ToString(j + 1), new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), Soldier_bmps, SoldierDeathSoundURI, 10 + 2 * i));
 					}
 					else
 					{
 						size = 20;
-						foeList.Add(new Stickman(Convert.ToString(j + 1) + "*", new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), new List<Bitmap> { Stickman_bmps[0], Properties.Resources.MissingTexture }, 25 + 3 * i, 0, 100.0, 50, 50));
+						foeList.Add(new Stickman(Convert.ToString(j + 1) + "*", new Rectangle(Path[0].X - size / 2, Path[0].Y - size / 2, size, size), new List<Bitmap> { Stickman_bmps[0], Properties.Resources.MissingTexture }, GlitchDeathSoundURI, 25 + 3 * i, 0, 100.0, 50, 50));
 					}
 				}
 				WavesList.Add(new Wave("Волна №" + Convert.ToString(i + 1), foeList));
 				border -= 4;
 			}
-			//WavesList.Add(new Wave("Волна №" + Convert.ToString(wavesAmt), new List<Enemy> { new Dragon("1", new Rectangle(Path[0].X - 50 / 2, Path[0].Y - 50 / 2, 50, 50), Dragon_bmps) }));
 		}
 
 		private void EnemySpawn_timer_Tick(object sender, EventArgs e)
 		{
-			if (GlobalDeffeat)
+			if (GlobalDefeat)
 			{
 				if (secsRemaining > 0)
 				{
@@ -1951,18 +2147,27 @@ namespace Tower_Defence
 
 				if (finished)
 				{
-					if (!GlobalDeffeat)
-						foe.Finish(ref GlobalLives);
-					CurrentEnemyList.Remove(foe);
-					if (!GlobalDeffeat && (GlobalLives <= 0))
+					if (!GlobalDefeat)
 					{
-						GlobalDeffeat = true;
+						foe.Finish(ref GlobalLives);
+					}
+					CurrentEnemyList.Remove(foe);
+					if (!GlobalDefeat && (GlobalLives <= 0))
+					{
+						GlobalDefeat = true;
 						GlobalPause = true;
 						twrIsHeld = false;
 						selTwrID = -1;
 						Sell_btn.Visible = false;
 						EnemySpawn_timer.Start();
 						EnemySpawn_timer.Interval *= 2;
+						BackgroundPlayer.Stop();
+						if (GlobalWave == 0)
+						{
+							DefeatPlayer.Open(DefeatLaughterURI);
+						}
+						DefeatPlayer.Stop();
+						DefeatPlayer.Play();
 
 						Enemy tFoe;
 						for (int j = 0; j < CurrentEnemyList.Count; j++)
@@ -2010,8 +2215,10 @@ namespace Tower_Defence
 					twr.AnimationTicks++;
 
 					int animLim = 8;
-					if (GlobalDeffeat)
+					if (GlobalDefeat)
+					{
 						animLim *= 2;
+					}
 
 					if (twr.AnimationTicks >= animLim)
 					{
@@ -2022,9 +2229,78 @@ namespace Tower_Defence
 				{
 					if (twr.Shoot(CurrentEnemyList, ref GlobalScore, ref GlobalGold))
 					{
+						switch (twr.Name)
+						{
+							case "Archer":
+								ArcherShotPlayer.Stop();
+								ArcherShotPlayer.Play();
+								break;
+							case "Mushroom":
+								MushroomShotPlayer.Stop();
+								MushroomShotPlayer.Play();
+								break;
+							case "Mage":
+								MageShotPlayer.Stop();
+								MageShotPlayer.Play();
+								break;
+							case "Eye":
+								EyeShotPlayer.Stop();
+								EyeShotPlayer.Play();
+								break;
+						}
 						twr.IsShot = true;
 						twr.AnimationTicks = 0;
-						if ((WavesList[GlobalWave].EnemySpawnQueue[0].GetType().Equals(typeof(Dragon))) && (GlobalWave == WavesList.Count - 1) && (CurrentEnemyList.Count == 0))
+
+						int i = 0;
+						Enemy foe;
+						while (i < CurrentEnemyList.Count)
+						{
+							foe = CurrentEnemyList[i];
+							if (foe.Health <= 0)
+							{
+								if (foe.GetType().Equals(typeof(Stickman)))
+								{
+									if (foe.Name[foe.Name.Length - 1] == '*')
+									{
+										GlitchDeathPlayer.Stop();
+										GlitchDeathPlayer.Play();
+									}
+									else
+									{
+										StickmanDeathPlayer.Stop();
+										StickmanDeathPlayer.Play();
+									}
+								}
+								else if (foe.GetType().Equals(typeof(Soldier)))
+								{
+									SoldierDeathPlayer.Stop();
+									SoldierDeathPlayer.Play();
+								}
+								else if (foe.GetType().Equals(typeof(Dragon)))
+								{
+									DragonDeathPlayer.Stop();
+									DragonDeathPlayer.Play();
+								}
+								CurrentEnemyList.Remove(foe);
+								i--;
+
+								if ((GlobalWave == WavesList.Count - 1) && (CurrentEnemyList.Count == 0))
+								{
+									Sell_btn.Visible = false;
+									selTwrID = -1;
+									GlobalScore += 3 * GlobalLives;
+									GlobalVictory = true;
+									GlobalPause = true;
+									twrIsHeld = false;
+									BackgroundPlayer.Stop();
+									VictoryPlayer.Stop();
+									VictoryPlayer.Play();
+								}
+							}
+							i++;
+						}
+						
+						/*if ((WavesList[GlobalWave].EnemySpawnQueue[0].GetType().Equals(typeof(Dragon))) && (GlobalWave == WavesList.Count - 1) && (CurrentEnemyList.Count == 0))
 						{
 							Sell_btn.Visible = false;
 							selTwrID = -1;
@@ -2032,7 +2308,9 @@ namespace Tower_Defence
 							GlobalVictory = true;
 							GlobalPause = true;
 							twrIsHeld = false;
-						}
+							VictoryPlayer.Stop();
+							VictoryPlayer.Play();
+						}*/
 					}
 				}
 			}
@@ -2056,7 +2334,7 @@ namespace Tower_Defence
 
 			//---Подбрасывание монетки---
 
-			if (GlobalDeffeat)
+			if (GlobalDefeat)
 			{
 				if (secsRemaining > 0)
 				{
@@ -2064,6 +2342,15 @@ namespace Tower_Defence
 					if (coinTime % 4 == 0)
 					{
 						Coin_bmp.RotateFlip(RotateFlipType.Rotate270FlipNone);
+					}
+					/*if (coinTime % 48 == 47)
+					{
+						CoinPlayer.Stop();
+					}*/
+					if (coinTime % 47 == 0)
+					{
+						CoinPlayer.Stop();
+						CoinPlayer.Play();
 					}
 				}
 			}

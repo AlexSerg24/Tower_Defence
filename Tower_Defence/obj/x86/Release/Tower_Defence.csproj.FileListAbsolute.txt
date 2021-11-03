@@ -1,0 +1,16 @@
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\bin\Release\AoCoWoC.exe
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\bin\Release\AoCoWoC.pdb
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.Main_form.resources
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.Properties.Resources.resources
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.csproj.GenerateResource.Cache
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\AoCoWoC.exe
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\AoCoWoC.pdb
+D:\Users'\Desktop\Мои документы\2016-2017\Практика\2\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.csprojResolveAssemblyReference.cache
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\bin\Release\AoCoWoC.exe
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\bin\Release\AoCoWoC.pdb
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.Main_form.resources
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.Properties.Resources.resources
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.csproj.GenerateResource.cache
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\Tower_Defence.csproj.CoreCompileInputs.cache
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\AoCoWoC.exe
+D:\Users'\Desktop\Мои документы\2016-2019\Мультимедиа\7\Tower_Defence\Tower_Defence\obj\x86\Release\AoCoWoC.pdb
