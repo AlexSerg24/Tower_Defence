@@ -1,0 +1,15 @@
+G:\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csprojResolveAssemblyReference.cache
+G:\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.Main_form.resources
+G:\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.GenerateResource.Cache
+F:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.AssemblyReference.cache
+F:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.Main_form.resources
+F:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.GenerateResource.cache
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.AssemblyReference.cache
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.Main_form.resources
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.GenerateResource.cache
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\bin\Debug\AoCoWoC.exe
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\bin\Debug\AoCoWoC.pdb
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.Properties.Resources.resources
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\Tower_Defence.csproj.CoreCompileInputs.cache
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\AoCoWoC.exe
+G:\учеба\Last\td\Tower_Defence\Tower_Defence\obj\x86\Debug\AoCoWoC.pdb
